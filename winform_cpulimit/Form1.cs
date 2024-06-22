@@ -35,11 +35,11 @@ namespace winform_cpulimit
         {
             button1.Enabled = true;
             button2.Enabled = false;
-            this.Text = "飞儿云CPU限速工具2018-02-27";
+            this.Text = "飞儿云CPU限速工具2024-06-22";
             //textBox1.Text = Properties.Settings.Default.keyword;
             comboBox1.Items.Clear();
-            comboBox1.Items.Add(@"\晨风QQ机器人.exe");
-            comboBox1.Items.Add(@"\笨笨熊管家.exe");
+            comboBox1.Items.Add(@"\java.exe");
+            comboBox1.Items.Add(@"\cmd.exe");
             comboBox1.Items.Add(@"\QQ.exe");
             comboBox1.Items.Add(@"\TIM.exe");
             comboBox1.Items.Add(@"\calc.exe");
@@ -53,14 +53,16 @@ namespace winform_cpulimit
             comboBox2_add("降速到10%, 延长10倍使用时间", 150, 1);
             comboBox2_add("降速到20%, 延长 4倍使用时间", 30, 1);
             comboBox2_add("降速到50%, 延长 1倍使用时间", 1, 1);
+            comboBox2_add("降速到75%, 延长 0.3倍使用时间", 25, 75);
             comboBox2.SelectedIndex = 0;
-            string msg = "欢迎使用[CPU降速工具]飞儿云专用版";
+            string msg = "欢迎使用[CPU降速工具]";
             msg += "\r\n\r\n本工具专门针对某些无法进行限速的挂机软件，";
             msg += "\r\n\r\n使用本工具可帮助您延长[CPU可用时间]";
             msg += "\r\n\r\n但有可能导致信息处理速度变慢";
             msg += "\r\n\r\n请根据您需要进行调整设置";
             msg += "\r\n\r\n技术支持阿盛QQ: 309385018";
-            //MessageBox.Show(msg, "欢迎使用[CPU降速工具]飞儿云专用版", MessageBoxButtons.OK);
+            msg += "\r\n\r\n由zhencai173修改后再发布";
+            MessageBox.Show(msg, "欢迎使用[CPU降速工具]", MessageBoxButtons.OK);
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -120,22 +122,22 @@ namespace winform_cpulimit
             {
                 if (process.Id == 0 || process.Id == 4)
                 {
-                    //跳过无权设置的
+                    // 跳过系统空闲和系统进程
                     continue;
                 }
                 if (process.SessionId == 0)
                 {
-                    //跳过系统会话
+                    // 跳过系统会话
                     continue;
                 }
                 if (selfProcess.Id == process.Id)
                 {
-                    //不对自身程序限速
+                    // 跳过当前应用程序进程
                     continue;
                 }
                 if (selfProcess.SessionId != process.SessionId)
                 {
-                    //跳过非自身会话的
+                    // 跳过不同会话的进程
                     continue;
                 }
                 string filename;
@@ -145,15 +147,25 @@ namespace winform_cpulimit
                 }
                 catch (Exception ex)
                 {
-                    //跳过无权设置的
+                    // 记录异常以便调试
+                    Console.WriteLine($"无法访问进程：{process.ProcessName}。错误：{ex.Message}");
                     continue;
                 }
-                //textBox2.AppendText(filename);
+                // 如果匹配关键字，则添加进程
                 if (likestring(filename, keyword))
                 {
                     pid_list.Add(process.Id);
                 }
+            }
 
+            // 向用户通知找到的进程数量
+            if (pid_list.Count == 0)
+            {
+                MessageBox.Show("未找到指定关键字的进程！", "信息");
+            }
+            else
+            {
+                MessageBox.Show($"找到并管理了 {pid_list.Count} 个进程。", "信息");
             }
         }
         private void process_suspend()
@@ -202,7 +214,7 @@ namespace winform_cpulimit
                 e.Cancel = false;
                 return;
             }
-            DialogResult result = MessageBox.Show("你确定要关闭吗？\r\n\r\n关闭后CPU降速功能就失效了！\r\n\r\n技术支持阿盛QQ:309385018", "提示信息", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
+            DialogResult result = MessageBox.Show("你确定要关闭吗？\r\n\r\n关闭后CPU降速功能就失效了！\r\n\r\n技术支持阿盛QQ:309385018 \r\n\r\n由zhencai173修改再后发布", "提示信息", MessageBoxButtons.OKCancel, MessageBoxIcon.Information);
             if (result != DialogResult.OK)
             {
                 e.Cancel = true;
